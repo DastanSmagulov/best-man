@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dastan & Moldir</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #faf8f4;
+            color: #2c2c2c;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ===== LANG ===== */
+        .lang-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            border: 1.5px solid rgba(180,145,70,0.3);
+            border-radius: 30px;
+            overflow: hidden;
+            background: rgba(250,248,244,0.85);
+            backdrop-filter: blur(10px);
+        }
+        .lang-btn {
+            padding: 8px 18px;
+            background: transparent;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: rgba(160,125,55,0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .lang-btn.active { background: #b89148; color: #fff; }
+
+        /* ===== INTRO ===== */
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            background: #faf8f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 90;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 40px 24px;
+            text-align: center;
+        }
+        .intro-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        .intro-greeting {
+            font-weight: 300;
+            font-size: 0.85rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #b89148;
+            opacity: 0;
+            animation: fadeUp 1s 0.3s forwards;
+        }
+        .intro-guest-name {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(2.5rem, 7vw, 4.5rem);
+            color: #8a6a2f;
+            margin: 8px 0 24px;
+            opacity: 0;
+            animation: fadeUp 1s 0.6s forwards;
+        }
+        .intro-message {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.05rem, 2.5vw, 1.4rem);
+            font-weight: 400;
+            font-style: italic;
+            color: #888;
+            line-height: 1.8;
+            max-width: 440px;
+            opacity: 0;
+            animation: fadeUp 1s 1s forwards;
+        }
+        .intro-photo {
+            width: clamp(200px, 50vw, 280px);
+            height: clamp(200px, 50vw, 280px);
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(184,145,72,0.25);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeUp 1s 0.2s forwards;
+        }
+        .intro-ornament {
+            font-size: 1.4rem;
+            color: #b89148;
+            margin: 20px 0;
+            opacity: 0;
+            animation: fadeUp 1s 1.3s forwards;
+            letter-spacing: 12px;
+        }
+        .enter-btn {
+            padding: 14px 40px;
+            background: transparent;
+            border: 1.5px solid rgba(184,145,72,0.4);
+            color: #b89148;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeUp 1s 1.6s forwards;
+            transition: all 0.3s ease;
+        }
+        .enter-btn:hover { background: #b89148; color: #fff; }
+
+        /* ===== MAIN ===== */
+        .main-content { display: none; }
+        .main-content.visible { display: block; }
+
+        /* ===== HERO ===== */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px 24px;
+            text-align: center;
+            background: linear-gradient(180deg, #faf8f4 0%, #f3efe6 50%, #faf8f4 100%);
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to top, #faf8f4, transparent);
+        }
+
+        .hero-names {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            color: #8a6a2f;
+            line-height: 1.15;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-and {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            color: #c4a76c;
+            display: block;
+            margin: 2px 0;
+        }
+        .hero-ornament {
+            font-size: 1.6rem;
+            color: #c4a76c;
+            margin-top: 20px;
+            letter-spacing: 10px;
+            position: relative;
+            z-index: 1;
+            opacity: 0.5;
+        }
+        .hero-date {
+            font-weight: 300;
+            font-size: 0.8rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 90px 24px;
+            max-width: 640px;
+            margin: 0 auto;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.9s ease;
+        }
+        .section.visible { opacity: 1; transform: translateY(0); }
+
+        .section-tag {
+            font-weight: 300;
+            font-size: 0.7rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #b89148;
+            margin-bottom: 22px;
+        }
+        .section-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.2rem, 3vw, 1.7rem);
+            font-weight: 400;
+            line-height: 1.9;
+            color: #555;
+        }
+        .section-text .highlight { color: #8a6a2f; }
+
+        /* ===== PHOTO SECTION ===== */
+        .photo-section {
+            padding: 40px 24px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.9s ease;
+        }
+        .photo-section.visible { opacity: 1; transform: translateY(0); }
+
+        .story-photo {
+            width: 100%;
+            max-width: 480px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid rgba(184,145,72,0.15);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .photo-pair {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 0 24px;
+        }
+        .photo-pair .story-photo {
+            max-width: calc(50% - 8px);
+            min-width: 200px;
+        }
+
+        .divider {
+            width: 40px;
+            height: 1px;
+            background: rgba(184,145,72,0.25);
+            margin: 0 auto;
+        }
+
+        /* ===== DATE ===== */
+        .date-block {
+            padding: 80px 24px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.9s ease;
+        }
+        .date-block.visible { opacity: 1; transform: translateY(0); }
+
+        .date-number {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: clamp(5rem, 15vw, 9rem);
+            color: #b89148;
+            line-height: 1;
+        }
+        .date-rest {
+            font-weight: 300;
+            font-size: clamp(0.85rem, 2vw, 1.05rem);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #999;
+            margin-top: 8px;
+        }
+        .date-weekday {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-top: 6px;
+        }
+
+        /* ===== LOCATION ===== */
+        .location {
+            padding: 20px 24px 40px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.9s ease;
+        }
+        .location.visible { opacity: 1; transform: translateY(0); }
+
+        .location-city {
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2vw, 1.1rem);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #777;
+        }
+        .location-country {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+
+        /* ===== CLOSING ===== */
+        .closing {
+            padding: 80px 24px 120px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.9s ease;
+        }
+        .closing.visible { opacity: 1; transform: translateY(0); }
+
+        .closing-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: #b89148;
+            line-height: 1.8;
+        }
+        .closing-ornament {
+            display: inline-block;
+            font-size: 1.4rem;
+            margin-top: 28px;
+            color: #c4a76c;
+            opacity: 0.4;
+            letter-spacing: 8px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .lang-toggle { top: 12px; right: 12px; }
+            .lang-btn { padding: 6px 14px; font-size: 0.6rem; }
+            .section { padding: 60px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Lang -->
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('kk')" id="btn-kk">QAZ</button>
+        <button class="lang-btn" onclick="setLang('ru')" id="btn-ru">РУС</button>
+    </div>
+
+    <!-- INTRO -->
+    <div class="intro-screen" id="introScreen">
+        <img src="Screenshot 2026-04-12 at 19.19.14.png" alt="Proposal" class="intro-photo">
+        <div class="intro-greeting" id="introGreeting"></div>
+        <div class="intro-guest-name" id="introGuestName"></div>
+        <div class="intro-message" id="introMessage"></div>
+        <div class="intro-ornament">&#10047; &#10047; &#10047;</div>
+        <button class="enter-btn" id="enterBtn" onclick="enterStory()"></button>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-content" id="mainContent">
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-names">
+                Dastan
+                <span class="hero-and" id="heroAnd"></span>
+                Moldir
+            </div>
+            <div class="hero-ornament">&#10053; &#10047; &#10053;</div>
+            <div class="hero-date" id="heroDate"></div>
+        </section>
+
+        <!-- OUR STORY -->
+        <section class="section" data-animate>
+            <div class="section-tag" id="tag1"></div>
+            <div class="section-text" id="text1"></div>
+        </section>
+
+        <!-- PHOTOS: Japan + Mountains -->
+        <section class="photo-section" data-animate>
+            <div class="photo-pair">
+                <img src="Screenshot 2026-04-12 at 19.18.47.png" alt="Dastan & Moldir" class="story-photo">
+                <img src="Screenshot 2026-04-12 at 19.22.29.png" alt="Dastan & Moldir" class="story-photo">
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- WHAT YOU MEAN -->
+        <section class="section" data-animate>
+            <div class="section-tag" id="tag2"></div>
+            <div class="section-text" id="text2"></div>
+        </section>
+
+        <!-- PHOTO: Sea -->
+        <section class="photo-section" data-animate>
+            <img src="Screenshot 2026-04-12 at 19.22.17.png" alt="Dastan & Moldir" class="story-photo">
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- INVITATION -->
+        <section class="section" data-animate>
+            <div class="section-tag" id="tag3"></div>
+            <div class="section-text" id="text3"></div>
+        </section>
+
+        <!-- PHOTO: Together -->
+        <section class="photo-section" data-animate>
+            <img src="Screenshot 2026-04-12 at 19.22.40.png" alt="Dastan & Moldir" class="story-photo">
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- DATE -->
+        <section class="date-block" data-animate>
+            <div class="date-number">6</div>
+            <div class="date-rest" id="dateRest"></div>
+            <div class="date-weekday" id="dateWeekday"></div>
+        </section>
+
+        <!-- LOCATION -->
+        <section class="location" data-animate>
+            <div class="location-city" id="locCity"></div>
+            <div class="location-country" id="locCountry"></div>
+        </section>
+
+        <!-- PHOTO: City -->
+        <section class="photo-section" data-animate>
+            <img src="Screenshot 2026-04-12 at 19.22.57.png" alt="Dastan & Moldir" class="story-photo">
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- CLOSING -->
+        <section class="closing" data-animate>
+            <div class="closing-text" id="closingText"></div>
+            <div class="closing-ornament">&#10047; &#10047; &#10047;</div>
+        </section>
+
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const nameRu = params.get('name') || '';
+        const pronounRu = params.get('pronoun') || '';
+        const nameKk = params.get('name_kk') || nameRu;
+        const pronounKk = params.get('pronoun_kk') || 'Құрметті';
+
+        const guest = {
+            kk: { name: nameKk, pronoun: pronounKk },
+            ru: { name: nameRu, pronoun: pronounRu },
+        };
+
+        const texts = {
+            kk: {
+                greetingDefault: 'Құрметті қонағымыз',
+                introMessage: 'Біз Сізді ерекше бір күнге шақырғымыз келеді.\nБіздің махаббат тарихы жаңа тарауға аяқ басады — және бұл тарауда Сіз де барсыз.',
+                enterBtn: 'Ашу',
+                heroAnd: 'және',
+                heroDate: '06 · 06 · 2026',
+                tag1: 'Біздің тарихымыз',
+                text1: 'Кейде тағдыр екі адамды кездестіреді — тек бір көзқарас, бір сәт — және өмір мәңгілікке өзгереді. Біздің <span class="highlight">махаббат тарихымыз</span> дәл солай басталды. Бір-бірімізді тапқан күннен бастап, біз бұл жолды бірге жүріп келеміз.',
+                tag2: 'Сіз біз үшін',
+                text2: 'Біздің өмірімізде <span class="highlight">ерекше орын</span> алатын адамсыз. Бірге күлген сәттер, бірге бастан кешірген қиындықтар, жүректен жүрекке жеткен сөздер — осының бәрі бізді бүгінгі күнге алып келді. Сіз біздің тарихымыздың бір бөлігісіз.',
+                tag3: 'Шақыру',
+                text3: 'Өмірдегі ең бақытты күнімізді <span class="highlight">Сізбен бірге</span> бөліскіміз келеді. Бізге ең қымбат адамдардың арасында Сіздің болуыңыз — шексіз қуаныш. Некелесу рәсімімізге зор құрметпен шақырамыз.',
+                dateRest: 'Маусым 2026',
+                dateWeekday: 'Сенбі',
+                locCity: 'Астана',
+                locCountry: 'Қазақстан',
+                closingText: 'Сіздің қатысуыңыз —\nбіз үшін ең қымбат сыйлық',
+            },
+            ru: {
+                greetingDefault: 'Дорогой гость',
+                introMessage: 'Мы хотим пригласить вас на один особенный день.\nНаша история любви начинает новую главу — и в этой главе есть вы.',
+                enterBtn: 'Открыть',
+                heroAnd: 'и',
+                heroDate: '06 · 06 · 2026',
+                tag1: 'Наша история',
+                text1: 'Иногда судьба сводит двух людей — один взгляд, один момент — и жизнь меняется навсегда. Наша <span class="highlight">история любви</span> началась именно так. С того дня, как мы нашли друг друга, мы идём по этому пути вместе.',
+                tag2: 'Вы для нас',
+                text2: 'Вы занимаете <span class="highlight">особенное место</span> в нашей жизни. Моменты, когда мы смеялись вместе, трудности, через которые прошли, слова от сердца к сердцу — всё это привело нас к сегодняшнему дню. Вы — часть нашей истории.',
+                tag3: 'Приглашение',
+                text3: 'Мы хотим разделить самый счастливый день нашей жизни <span class="highlight">именно с вами</span>. Быть в окружении самых дорогих людей — это бесконечная радость для нас. С любовью приглашаем вас на нашу церемонию бракосочетания.',
+                dateRest: 'Июня 2026',
+                dateWeekday: 'Суббота',
+                locCity: 'Астана',
+                locCountry: 'Казахстан',
+                closingText: 'Ваше присутствие —\nсамый дорогой подарок для нас',
+            }
+        };
+
+        let currentLang = 'kk';
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            const t = texts[lang];
+            const g = guest[lang];
+
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + lang).classList.add('active');
+
+            const greetEl = document.getElementById('introGreeting');
+            const nameEl = document.getElementById('introGuestName');
+            if (g.name) {
+                greetEl.textContent = g.pronoun || t.greetingDefault;
+                nameEl.textContent = g.name;
+            } else {
+                greetEl.textContent = t.greetingDefault;
+                nameEl.textContent = '';
+            }
+            document.getElementById('introMessage').textContent = t.introMessage;
+            document.getElementById('enterBtn').textContent = t.enterBtn;
+
+            document.getElementById('heroAnd').textContent = t.heroAnd;
+            document.getElementById('heroDate').textContent = t.heroDate;
+
+            document.getElementById('tag1').textContent = t.tag1;
+            document.getElementById('text1').innerHTML = t.text1;
+            document.getElementById('tag2').textContent = t.tag2;
+            document.getElementById('text2').innerHTML = t.text2;
+            document.getElementById('tag3').textContent = t.tag3;
+            document.getElementById('text3').innerHTML = t.text3;
+
+            document.getElementById('dateRest').textContent = t.dateRest;
+            document.getElementById('dateWeekday').textContent = t.dateWeekday;
+            document.getElementById('locCity').textContent = t.locCity;
+            document.getElementById('locCountry').textContent = t.locCountry;
+
+            document.getElementById('closingText').textContent = t.closingText;
+        }
+
+        function enterStory() {
+            document.getElementById('introScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.add('visible');
+            setTimeout(() => {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+                }, { threshold: 0.15 });
+                document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+            }, 200);
+        }
+
+        setLang('kk');
+    </script>
+
+</body>
+</html>
